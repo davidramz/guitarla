@@ -4,48 +4,62 @@ import Guitar from "./components/Guitar";
 import { db } from "./data/db";
 import { useEffect, useState } from "react";
 function App() {
+  const initialCart = () =>
+    localStorage.getItem("cart")
+      ? JSON.parse(localStorage.getItem("cart"))
+      : [];
+
   const [data, setData] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(initialCart);
+  const MAX_ITEMS = 5;
 
   useEffect(() => {
     setData(db);
   });
 
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
   function addToCart(item) {
-    const indiceItemExiste = cart.findIndex(
-      (product) => product.id === item.id,
-    );
-    if (indiceItemExiste >= 0) {
-      const updateCart = [...cart];
-      updateCart[indiceItemExiste].quantity++;
-      setCart(updateCart);
+    const existe = cart.find((p) => p.id === item.id);
+    if (existe) {
+      setCart(
+        cart.map((product) =>
+          product.id === item.id && product.quantity < MAX_ITEMS
+            ? { ...product, quantity: product.quantity + 1 }
+            : product,
+        ),
+      );
     } else {
-      item.quantity = 1;
-      setCart((prevCart) => [...prevCart, item]);
+      setCart([...cart, { ...item, quantity: 1 }]);
     }
   }
 
-  function removeToCart(item) {
-    const removeUpdateCart = [...cart];
-    if (item.quantity <= 1) {
-      let deletedItemCart = removeUpdateCart.filter(
-        (element) => element.id !== item.id,
-      );
-      setCart(deletedItemCart);
-    } else {
-      const indiceToRemoveItem = cart.findIndex(
-        (product) => product.id === item.id,
-      );
-      if (indiceToRemoveItem >= 0) {
-        removeUpdateCart[indiceToRemoveItem].quantity--;
-        setCart(removeUpdateCart);
-      }
-    }
+  function incrementItemToCart(item) {
+    setCart(
+      cart.map((p) =>
+        p.id === item.id && p.quantity < MAX_ITEMS
+          ? { ...p, quantity: p.quantity + 1 }
+          : p,
+      ),
+    );
   }
+
+  function decrementItemToCart(item) {
+    setCart(
+      cart
+        .map((p) => (p.id === item.id ? { ...p, quantity: p.quantity - 1 } : p))
+        .filter((p) => p.quantity > 0),
+    );
+  }
+
   function deleteItemToCart(item) {
-    const cartToDelete = [...cart];
-    const cartAfterDelete = cartToDelete.filter((p) => p.id !== item.id);
-    setCart(cartAfterDelete);
+    setCart((prevCart) => prevCart.filter((p) => p.id !== item.id));
+  }
+
+  function deleteCart() {
+    setCart([]);
   }
 
   return (
@@ -53,8 +67,10 @@ function App() {
       <Header
         cart={cart}
         addToCart={addToCart}
-        removeToCart={removeToCart}
+        incrementItemToCart={incrementItemToCart}
+        decrementItemToCart={decrementItemToCart}
         deleteItemToCart={deleteItemToCart}
+        deleteCart={deleteCart}
       />
       <main className="container-xl mt-5">
         <h2 className="text-center">Nuestra Colección</h2>

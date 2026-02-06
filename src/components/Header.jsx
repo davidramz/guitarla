@@ -1,13 +1,18 @@
+import { useMemo } from "react";
+
 //import Nav from "./Nav";
 export default function Header({
   cart,
-  addToCart,
-  removeToCart,
+  incrementItemToCart,
+  decrementItemToCart,
   deleteItemToCart,
+  deleteCart,
 }) {
-  const isEmptyCart = () => cart.length === 0;
-  const totalCart = () =>
-    cart.reduce((acc, item) => acc + item.quantity * item.price, 0);
+  const isEmptyCart = useMemo(() => cart.length === 0, [cart]);
+  const totalCart = useMemo(
+    () => cart.reduce((acc, item) => acc + item.quantity * item.price, 0),
+    [cart],
+  );
   return (
     <header className="py-5 header">
       <div className="container-xl">
@@ -30,7 +35,7 @@ export default function Header({
               />
 
               <div id="carrito" className="bg-white p-3">
-                {isEmptyCart() ? (
+                {isEmptyCart ? (
                   <p className="text-center">El carrito esta vacio</p>
                 ) : (
                   <>
@@ -60,7 +65,7 @@ export default function Header({
                               <button
                                 type="button"
                                 className="btn btn-dark"
-                                onClick={() => removeToCart(guitar)}
+                                onClick={() => decrementItemToCart(guitar)}
                               >
                                 -
                               </button>
@@ -68,7 +73,7 @@ export default function Header({
                               <button
                                 type="button"
                                 className="btn btn-dark"
-                                onClick={() => addToCart(guitar)}
+                                onClick={() => incrementItemToCart(guitar)}
                               >
                                 +
                               </button>
@@ -87,10 +92,12 @@ export default function Header({
                       </tbody>
                     </table>
                     <p className="text-end">
-                      Total pagar:{" "}
-                      <span className="fw-bold">${totalCart()}</span>
+                      Total pagar: <span className="fw-bold">${totalCart}</span>
                     </p>
-                    <button className="btn btn-dark w-100 mt-3 p-2">
+                    <button
+                      className="btn btn-dark w-100 mt-3 p-2"
+                      onClick={deleteCart}
+                    >
                       Vaciar Carrito
                     </button>
                   </>
