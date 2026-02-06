@@ -1,18 +1,12 @@
-import { useMemo } from "react";
-
-//import Nav from "./Nav";
 export default function Header({
   cart,
   incrementItemToCart,
   decrementItemToCart,
   deleteItemToCart,
   deleteCart,
+  isEmptyCart,
+  totalCart,
 }) {
-  const isEmptyCart = useMemo(() => cart.length === 0, [cart]);
-  const totalCart = useMemo(
-    () => cart.reduce((acc, item) => acc + item.quantity * item.price, 0),
-    [cart],
-  );
   return (
     <header className="py-5 header">
       <div className="container-xl">
